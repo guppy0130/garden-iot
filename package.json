@@ -4,7 +4,7 @@
   "description": "Your garden, now with Google Assistant",
   "main": "index.js",
   "scripts": {
-    "test": "mocha tests/* --watch",
+    "test": "mocha tests/*",
     "test-min": "mocha tests/* --watch --reporter=min",
     "start": "node index.js",
     "dev": "nodemon index.js"
