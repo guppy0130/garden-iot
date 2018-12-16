@@ -2,11 +2,13 @@ const request = require('supertest');
 const should = require('should');
 const port = process.env.PORT || 3000;
 const app = request(`http://localhost:${port}`);
+const server = require('../index');
+
+before(function(done) {
+    server.on('server_up', done());
+});
 
 describe('Basic Tests', function() {
-    before(function(done) {
-        setTimeout(done, 500);
-    });
 
     describe('/grafana endpoint', function() {
         const alert = {state: 'alerting'};
@@ -50,4 +52,8 @@ describe('Basic Tests', function() {
             }).expect(404);
         });
     });
+});
+
+after(function(done) {
+    server.close(done);
 });

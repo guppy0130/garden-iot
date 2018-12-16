@@ -31,6 +31,7 @@ app.use(function(req, res) {
     res.status(404).send(`Route ${req.url} not found. Please contact the developer for more information.`);
 });
 
-app.listen(port, () => {
+module.exports = app.listen(port, () => {
     console.log(`Listening on ${port}`);
+    app.emit('server_up');
 });
