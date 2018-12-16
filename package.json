@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/guppy0130/garden-iot#readme",
   "dependencies": {
-    "actions-on-google": "^2.5.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4"
   },
