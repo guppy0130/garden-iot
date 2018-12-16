@@ -1,0 +1,33 @@
+{
+  "name": "garden-iot",
+  "version": "1.0.0",
+  "description": "Your garden, now with Google Assistant",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/* --watch",
+    "test-min": "mocha tests/* --watch --reporter=min",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guppy0130/garden-iot.git"
+  },
+  "author": "yanglangthang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guppy0130/garden-iot/issues"
+  },
+  "homepage": "https://github.com/guppy0130/garden-iot#readme",
+  "dependencies": {
+    "actions-on-google": "^2.5.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "eslint": "^5.10.0",
+    "mocha": "^5.2.0",
+    "should": "^13.2.3",
+    "supertest": "^3.3.0"
+  }
+}
