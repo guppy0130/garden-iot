@@ -1,11 +1,44 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const auth = require('basic-auth');
 const jsonParser = bodyParser.json();
 const app = express();
 const port = process.env.PORT || 3000;
+const users = [{
+    name: 'grafana',
+    pass: process.env.GRAFANAPASS
+}, {
+    name: 'google',
+    pass: process.env.GOOGLEPASS
+}];
+
+if (process.env.NODE_ENV !== 'production') {
+    users.push({
+        name: 'test',
+        pass: 'password'
+    });
+}
 
 let alerting = {};
 const grafanaStatuses = ['ok', 'paused', 'alerting', 'pending', 'no_data'];
+
+/* helper auth methods */
+const authHelper = (user) => {
+    return users.some(elem => {
+        return (user.name === elem.name) && (user.pass === elem.pass);
+    });
+};
+
+const authenticator = (req, res, next) => {
+    const user = auth(req);
+    if (!user || !authHelper({name: user.name, pass: user.pass})) {
+        res.sendStatus(401);
+        return;
+    }
+    next();
+};
+
+app.use(authenticator);
 
 app.post('/grafana', jsonParser, (req, res) => {
     if (!req.body ||

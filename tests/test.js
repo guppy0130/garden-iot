@@ -2,6 +2,8 @@ const request = require('supertest');
 const should = require('should');
 const port = process.env.PORT || 3000;
 const host = 'localhost';
+let username = 'test';
+let password = 'password';
 const app = request(`http://${host}:${port}`);
 const server = require('../index');
 
@@ -42,6 +44,7 @@ const partialExampleQuery = {
     }
 };
 
+
 before(function(done) {
     server.on('server_up', done());
 });
@@ -52,6 +55,7 @@ describe('Basic Tests', function() {
         it('changes alerting state to high', function() {
             return app
                 .post('/grafana')
+                .auth(username, password)
                 .send(alert)
                 .expect(200)
                 .then(response => {
@@ -62,6 +66,7 @@ describe('Basic Tests', function() {
         it('returns a state that\'s been set', function() {
             return app
                 .get(`/grafana/${plant}/${color}`)
+                .auth(username, password)
                 .expect(200)
                 .then(response => {
                     response.body.should.be.true();
@@ -72,6 +77,7 @@ describe('Basic Tests', function() {
         it('changes alerting state to low', function() {
             return app
                 .post('/grafana')
+                .auth(username, password)
                 .send(ok)
                 .expect(200)
                 .then(response => {
@@ -82,6 +88,7 @@ describe('Basic Tests', function() {
         it('returns the low state', function() {
             return app
                 .get(`/grafana/${plant}/${color}`)
+                .auth(username, password)
                 .expect(200)
                 .then(response => {
                     response.body.should.not.be.true();
@@ -90,14 +97,18 @@ describe('Basic Tests', function() {
         });
 
         it('errors on changing alerting state to a value grafana doesn\'t serve', function() {
-            return app.post('/grafana').send({
-                state: 'not a value'
-            }).expect(400);
+            return app
+                .post('/grafana')
+                .auth(username, password)
+                .send({
+                    state: 'not a value'
+                }).expect(400);
         });
 
         it('cannot find a state that doesn\'t exist', function() {
             return app
                 .get(`/grafana/${plant}/${badColor}`)
+                .auth(username, password)
                 .expect(404);
         });
     });
@@ -108,6 +119,7 @@ describe('Basic Tests', function() {
         it('returns the right keys', function() {
             return app
                 .post('/fulfillment')
+                .auth(username, password)
                 .send(partialExampleQuery)
                 .expect(200)
                 .then(response => {
@@ -119,6 +131,7 @@ describe('Basic Tests', function() {
         it('says yes when water alert is high', function() {
             let prep = app
                 .post('/grafana')
+                .auth(username, password)
                 .send(alert)
                 .expect(200)
                 .then(response => {
@@ -126,6 +139,7 @@ describe('Basic Tests', function() {
                 });
             let rest = app
                 .post('/fulfillment')
+                .auth(username, password)
                 .send(partialExampleQuery)
                 .expect(200)
                 .then(response => {
@@ -138,6 +152,7 @@ describe('Basic Tests', function() {
         it('says no when water alert is low', function() {
             let prep = app
                 .post('/grafana')
+                .auth(username, password)
                 .send(ok)
                 .expect(200)
                 .then(response => {
@@ -145,6 +160,7 @@ describe('Basic Tests', function() {
                 });
             let rest = app
                 .post('/fulfillment')
+                .auth(username, password)
                 .send(partialExampleQuery)
                 .expect(200)
                 .then(response => {
@@ -159,6 +175,7 @@ describe('Basic Tests', function() {
             badPartialQuery.queryResult.parameters.color = badColor;
             return app
                 .post('/fulfillment')
+                .auth(username, password)
                 .send(badPartialQuery)
                 .expect(200)
                 .then(response => {
@@ -168,11 +185,26 @@ describe('Basic Tests', function() {
         });
     });
 
-    describe('Nonexistent endpoint', function() {
+    describe('Other general cases', function() {
         it('404s on unknown URLs', function() {
-            return app.post('/unknown').send({
-                state: 'alerting'
-            }).expect(404);
+            return app
+                .post('/unknown')
+                .auth(username, password)
+                .send({
+                    state: 'alerting'
+                }).expect(404);
+        });
+
+        it('Errors without auth', function() {
+            let prep = app
+                .post('/grafana')
+                .send(ok)
+                .expect(401);
+            let rest = app
+                .post('/fulfillment')
+                .send(partialExampleQuery)
+                .expect(401);
+            return Promise.all([prep, rest]);
         });
     });
 });
